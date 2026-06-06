@@ -21,7 +21,7 @@ docs/
 
 - Node.js 20 or newer.
 - npm 10 or newer.
-- PostgreSQL 14 or newer.
+- PostgreSQL 14 or newer is optional. It is only needed when demo mode is disabled.
 - A shell with standard development tools.
 
 > This repository is an existing monorepo. Do not scaffold a new project; install and run the workspaces from this root directory.
@@ -35,19 +35,55 @@ docs/
 npm install
 ```
 
-3. Copy the environment template:
+3. Optional: copy the environment template when you want to override defaults:
 
 ```bash
 cp .env.example .env
 ```
 
-4. Review the `.env` values before running migrations or the API.
+4. Review the `.env` values before running migrations or the real database-backed API. The repository defaults to demo mode, so this step is not required to launch the local dashboard.
+
+## Demo mode for local development
+
+Demo mode is enabled by default for the API, web dashboard, and Expo app. It bypasses PostgreSQL and Prisma queries, serves local mock data for foods, today's dashboard, diary entries, goals, weight tracking, reports/statistics, suggestions, and admin food review, and stores only in-memory/session demo changes.
+
+From a fresh checkout, run the local dashboard without PostgreSQL:
+
+```bash
+npm install
+npm run dev
+```
+
+Then open the Vite web dashboard at <http://localhost:5173>. Log in with either demo account:
+
+- User: `demo@calo.vn` / any password
+- Admin: `admin@calo.vn` / any password
+
+For mobile demo data, run:
+
+```bash
+npm run dev --workspace @calo/mobile
+```
+
+The Expo home, food search, diary, statistics, and profile tabs use the same local mock nutrition data and do not require PostgreSQL.
+
+To opt out of demo mode and use the real API/database flow, set these environment values before starting apps:
+
+```env
+CALO_DEMO_MODE="false"
+VITE_DEMO_MODE="false"
+EXPO_PUBLIC_DEMO_MODE="false"
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/calo?schema=public"
+```
 
 ## Environment setup
 
 The root `.env.example` documents the shared settings used by the API, Prisma, Vite apps, and Expo app:
 
 ```env
+CALO_DEMO_MODE="true"
+VITE_DEMO_MODE="true"
+EXPO_PUBLIC_DEMO_MODE="true"
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/calo?schema=public"
 PORT=4000
 JWT_SECRET="replace-with-a-long-random-secret"
@@ -58,9 +94,11 @@ VITE_API_URL="http://localhost:4000/api"
 EXPO_PUBLIC_API_URL="http://localhost:4000/api"
 ```
 
-Production deployments must replace `JWT_SECRET`, use a production PostgreSQL URL, and restrict `CORS_ORIGIN` to trusted frontend origins.
+Production deployments must set demo mode values to `false`, replace `JWT_SECRET`, use a production PostgreSQL URL, and restrict `CORS_ORIGIN` to trusted frontend origins.
 
 ## Database setup
+
+Demo mode does not need these steps. Use them only when `CALO_DEMO_MODE=false`.
 
 1. Start PostgreSQL.
 2. Create a database named `calo` or update `DATABASE_URL` with the correct database name.
