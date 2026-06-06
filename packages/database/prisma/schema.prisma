@@ -68,6 +68,7 @@ model Food {
   favoriteFoods FavoriteFood[]
 
   @@index([vietnameseName])
+  @@index([englishName])
   @@index([categoryId])
 }
 
@@ -127,6 +128,8 @@ model MealTemplate {
   items MealTemplateItem[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
 
 model MealTemplateItem {
@@ -145,6 +148,7 @@ model FavoriteFood {
   foodId String
   food Food @relation(fields: [foodId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+
   @@unique([userId, foodId])
 }
 

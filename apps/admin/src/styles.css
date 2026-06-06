@@ -1,1 +1,22 @@
-@tailwind base;@tailwind components;@tailwind utilities;body{margin:0;background:#f8fafc;font-family:Inter,system-ui,sans-serif}.card{@apply rounded-3xl bg-white p-5 shadow-lg shadow-slate-200/60}.input{@apply rounded-2xl border p-3}.btn{@apply rounded-2xl bg-green-600 px-4 py-3 font-bold text-white}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  background: #f8fafc;
+  color: #0f172a;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.card {
+  @apply rounded-3xl bg-white p-5 shadow-lg shadow-slate-200/60;
+}
+
+.input {
+  @apply rounded-2xl border border-slate-200 p-3 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20;
+}
+
+.btn {
+  @apply rounded-2xl bg-green-600 px-4 py-3 font-bold text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2;
+}

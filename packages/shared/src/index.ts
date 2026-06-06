@@ -50,7 +50,10 @@ export function calculateMacroGrams(calories: number) {
   };
 }
 
-export function nutritionForQuantity(per100g: { caloriesPer100g: number; proteinPer100g: number; carbsPer100g: number; fatPer100g: number }, quantityGram: number) {
+export function nutritionForQuantity(
+  per100g: { caloriesPer100g: number; proteinPer100g: number; carbsPer100g: number; fatPer100g: number },
+  quantityGram: number
+) {
   const ratio = quantityGram / 100;
   return {
     calories: Math.round(per100g.caloriesPer100g * ratio),
@@ -60,10 +63,14 @@ export function nutritionForQuantity(per100g: { caloriesPer100g: number; protein
   };
 }
 
+const requiredText = z.string().trim().min(1);
+const optionalText = z.string().trim().optional().nullable();
+const nutrient = z.coerce.number().min(0).max(1000);
+
 export const registerSchema = z.object({
-  name: z.string().min(2),
-  email: z.string().email(),
-  password: z.string().min(8),
+  name: z.string().trim().min(2).max(120),
+  email: z.string().trim().email().toLowerCase(),
+  password: z.string().min(8).max(128),
   gender: z.enum(genders).default('other'),
   age: z.coerce.number().int().min(13).max(100).default(25),
   height: z.coerce.number().min(100).max(230).default(165),
@@ -73,11 +80,34 @@ export const registerSchema = z.object({
   goalType: z.enum(goalTypes).default('maintain_weight')
 });
 
-export const loginSchema = z.object({ email: z.string().email(), password: z.string().min(1) });
+export const loginSchema = z.object({ email: z.string().trim().email().toLowerCase(), password: z.string().min(1) });
+
 export const foodSchema = z.object({
-  name: z.string().min(1), vietnameseName: z.string().min(1), englishName: z.string().optional().nullable(), categoryId: z.string().min(1),
-  caloriesPer100g: z.coerce.number().min(0), proteinPer100g: z.coerce.number().min(0), carbsPer100g: z.coerce.number().min(0), fatPer100g: z.coerce.number().min(0),
-  fiberPer100g: z.coerce.number().min(0).default(0), sugarPer100g: z.coerce.number().min(0).default(0), sodiumPer100g: z.coerce.number().min(0).default(0), source: z.string().default('user'), note: z.string().optional().nullable()
+  name: requiredText.max(160),
+  vietnameseName: requiredText.max(160),
+  englishName: optionalText,
+  categoryId: requiredText,
+  caloriesPer100g: nutrient,
+  proteinPer100g: nutrient,
+  carbsPer100g: nutrient,
+  fatPer100g: nutrient,
+  fiberPer100g: nutrient.default(0),
+  sugarPer100g: nutrient.default(0),
+  sodiumPer100g: nutrient.default(0),
+  source: z.string().trim().max(120).default('user'),
+  note: optionalText
 });
-export const diaryEntrySchema = z.object({ foodId: z.string(), mealType: z.enum(mealTypes), date: z.coerce.date(), quantityGram: z.coerce.number().positive(), note: z.string().optional().nullable() });
-export const weightEntrySchema = z.object({ date: z.coerce.date(), weight: z.coerce.number().positive(), note: z.string().optional().nullable() });
+
+export const diaryEntrySchema = z.object({
+  foodId: requiredText,
+  mealType: z.enum(mealTypes),
+  date: z.coerce.date(),
+  quantityGram: z.coerce.number().positive().max(5000),
+  note: optionalText
+});
+
+export const weightEntrySchema = z.object({
+  date: z.coerce.date(),
+  weight: z.coerce.number().min(30).max(250),
+  note: optionalText
+});
