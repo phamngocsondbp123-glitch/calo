@@ -1,0 +1,16 @@
+{
+  "name": "calorie-tracker-vietnam",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Full-stack Vietnamese calorie and nutrition tracking ecosystem",
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev": "npm run dev --workspace @calo/api & npm run dev --workspace @calo/web & npm run dev --workspace @calo/admin",
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "seed": "npm run seed --workspace @calo/database",
+    "prisma:generate": "npm run prisma:generate --workspace @calo/database",
+    "prisma:migrate": "npm run prisma:migrate --workspace @calo/database"
+  },
+  "engines": { "node": ">=20" }
+}

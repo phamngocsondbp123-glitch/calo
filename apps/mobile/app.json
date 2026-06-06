@@ -1,0 +1,1 @@
+{"expo":{"name":"Calo Việt","slug":"calo-viet","version":"0.1.0","orientation":"portrait","scheme":"caloviet","userInterfaceStyle":"light","ios":{"supportsTablet":true},"android":{"adaptiveIcon":{"backgroundColor":"#16a34a"}},"extra":{"apiUrl":"http://localhost:4000/api"}}}
