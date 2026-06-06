@@ -1,1 +1,12 @@
-export function StatCard({label,value,sub,tone='primary'}:{label:string;value:string|number;sub?:string;tone?:'primary'|'warning'|'danger'}){const colors={primary:'text-primary bg-green-50',warning:'text-warning bg-orange-50',danger:'text-danger bg-red-50'};return <div className="card"><p className="text-sm text-slate-500">{label}</p><div className={`mt-3 inline-flex rounded-2xl px-3 py-2 text-2xl font-black ${colors[tone]}`}>{value}</div>{sub&&<p className="mt-3 text-sm text-slate-500">{sub}</p>}</div>}
+type StatCardProps = { label: string; value: string | number; sub?: string; tone?: 'primary' | 'warning' | 'danger' };
+
+export function StatCard({ label, value, sub, tone = 'primary' }: StatCardProps) {
+  const colors = { primary: 'text-primary bg-green-50', warning: 'text-warning bg-orange-50', danger: 'text-danger bg-red-50' };
+  return (
+    <div className="card">
+      <p className="text-sm text-slate-500">{label}</p>
+      <div className={`mt-3 inline-flex rounded-2xl px-3 py-2 text-2xl font-black ${colors[tone]}`}>{value}</div>
+      {sub ? <p className="mt-3 text-sm text-slate-500">{sub}</p> : null}
+    </div>
+  );
+}

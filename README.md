@@ -17,48 +17,70 @@ docs/
   API.md     Endpoint documentation and payload examples
 ```
 
-## Core features
-
-- JWT register/login/logout/me with bcrypt password hashing.
-- User profile, goals, BMI, BMR, TDEE, calorie target, and macro target calculations.
-- Food database with categories, verified seed data, user custom foods, favorites-ready model, recent/popular search endpoints, and admin verification.
-- Daily diary for breakfast/lunch/dinner/snack with per-portion calorie and macro calculations.
-- Weight tracking and goal progress data.
-- Daily, weekly, monthly, yearly reports with calories, macros, meal breakdown, top foods, and weight history.
-- Rule-based smart suggestions for missing calories/protein or calorie-overrun warnings.
-- Barcode manual lookup/submission and food image upload placeholder for future AI recognition.
-- Redis and cloud storage can be added without changing API boundaries; the current upload service stores local files under `uploads/`.
-
 ## Prerequisites
 
-- Node.js 20+
-- PostgreSQL 14+
-- npm 10+
+- Node.js 20 or newer.
+- npm 10 or newer.
+- PostgreSQL 14 or newer.
+- A shell with standard development tools.
 
-## Local setup
+> This repository is an existing monorepo. Do not scaffold a new project; install and run the workspaces from this root directory.
 
-1. Install dependencies:
+## Installation steps
+
+1. Clone or open the existing repository and enter the repo root.
+2. Install workspace dependencies:
 
 ```bash
 npm install
 ```
 
-2. Copy environment variables:
+3. Copy the environment template:
 
 ```bash
 cp .env.example .env
 ```
 
-3. Start PostgreSQL and create the database named `calo`, then update `DATABASE_URL` if needed.
+4. Review the `.env` values before running migrations or the API.
 
-4. Generate Prisma Client and run migrations:
+## Environment setup
+
+The root `.env.example` documents the shared settings used by the API, Prisma, Vite apps, and Expo app:
+
+```env
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/calo?schema=public"
+PORT=4000
+JWT_SECRET="replace-with-a-long-random-secret"
+JWT_EXPIRES_IN="7d"
+CORS_ORIGIN="http://localhost:5173,http://localhost:5174"
+UPLOAD_DIR="uploads"
+VITE_API_URL="http://localhost:4000/api"
+EXPO_PUBLIC_API_URL="http://localhost:4000/api"
+```
+
+Production deployments must replace `JWT_SECRET`, use a production PostgreSQL URL, and restrict `CORS_ORIGIN` to trusted frontend origins.
+
+## Database setup
+
+1. Start PostgreSQL.
+2. Create a database named `calo` or update `DATABASE_URL` with the correct database name.
+3. Generate Prisma Client:
 
 ```bash
 npm run prisma:generate
+```
+
+4. Run migrations during local development:
+
+```bash
 npm run prisma:migrate -- --name init
 ```
 
-5. Seed categories, users, barcode products, and 100+ Vietnamese foods:
+For production, prefer Prisma deploy migrations from your deployment pipeline instead of `migrate dev`.
+
+## Seed instructions
+
+Seed categories, demo users, barcode products, and Vietnamese food records:
 
 ```bash
 npm run seed
@@ -69,32 +91,101 @@ Seeded accounts:
 - User: `demo@calo.vn` / `password123`
 - Admin: `admin@calo.vn` / `password123`
 
-6. Run the ecosystem:
+## Development commands
+
+Run API, web, and admin together:
 
 ```bash
 npm run dev
 ```
 
-Default URLs:
+Run individual workspaces:
 
-- API: http://localhost:4000/api/health
-- Web dashboard: http://localhost:5173
-- Admin panel: http://localhost:5174
-- Mobile: `npm run dev --workspace @calo/mobile`
+```bash
+npm run dev --workspace @calo/api
+npm run dev --workspace @calo/web
+npm run dev --workspace @calo/admin
+npm run dev --workspace @calo/mobile
+```
 
-## Development commands
+Default local URLs:
+
+- API health: <http://localhost:4000/api/health>
+- Web dashboard: <http://localhost:5173>
+- Admin panel: <http://localhost:5174>
+- Expo mobile app: the Expo URL printed by `npm run dev --workspace @calo/mobile`
+
+## Build commands
+
+Build all buildable workspaces:
 
 ```bash
 npm run build
-npm run typecheck
-npm run seed
-npm run prisma:generate
-npm run prisma:migrate -- --name change_name
 ```
 
-## Product notes
+Type-check all workspaces:
 
-- Vietnamese food search supports Vietnamese and English names, category filters, and calorie range filters.
-- The web dashboard is responsive and includes bottom-navigation style ergonomics on small screens.
-- The Expo app includes the required daily-user screen architecture: onboarding/auth-ready profile, home, add/search food, diary, barcode placeholder, weight/stats/report/profile placeholders.
-- Admin functionality is intentionally separated into `apps/admin` while the web dashboard also exposes an admin route for power users with admin tokens.
+```bash
+npm run typecheck
+```
+
+Run package-specific checks:
+
+```bash
+npm run typecheck --workspace @calo/api
+npm run typecheck --workspace @calo/web
+npm run typecheck --workspace @calo/admin
+npm run typecheck --workspace @calo/mobile
+```
+
+## Core features
+
+- JWT register/login/logout/me with bcrypt password hashing.
+- User profile, goals, BMI, BMR, TDEE, calorie target, and macro target calculations.
+- Food database with categories, verified seed data, user custom foods, recent/popular search endpoints, and admin verification.
+- Daily diary for breakfast/lunch/dinner/snack with per-portion calorie and macro calculations.
+- Weight tracking and goal progress data.
+- Daily, weekly, monthly, yearly reports with calories, macros, meal breakdown, top foods, and weight history.
+- Rule-based smart suggestions for missing calories/protein or calorie-overrun warnings.
+- Barcode manual lookup/submission and food image upload placeholder for future AI recognition.
+- Local upload storage under `uploads/`; Redis/cloud storage can be added later without changing API boundaries.
+
+## Project health report
+
+### What was reviewed
+
+- Frontend route tree, dashboard, diary, foods, reports, goals, settings, admin route, shared API client, auth store, Tailwind styles, responsive navigation, and form accessibility.
+- Dedicated admin app login flow, API calls, responsive layout, and auth-token handling.
+- Expo mobile shell, tabs, screens, API client, import style, and route icon typing.
+- Express API routes for auth, users, foods, diary, meal templates, weights, reports, suggestions, barcode, uploads, and admin operations.
+- Prisma schema relations, indexes, uniqueness constraints, seed data, and database helper exports.
+- Shared validation schemas and nutrition calculation helpers.
+- Repository setup docs, environment template, and commands.
+
+### What was fixed
+
+- Reworked API route handlers to use clearer typed helpers, shared date handling, safer search filters, stricter upload limits, reusable goal creation, active-goal rollover, food recalculation when diary food changes, and weight upsert behavior for same-day entries.
+- Added shared validation hardening for trimmed text, bounded numbers, normalized emails, nutrient limits, diary quantity limits, and weight limits.
+- Improved API error responses for Zod validation and HTTP errors.
+- Added missing `.env.example` because the README setup referenced it.
+- Improved web app route fallback, stale-token boot handling, form labels, required inputs, error states, admin verification action, responsive tables, and focus styles.
+- Improved dedicated admin app from a hard-coded one-click login into a credential form with error handling, logout, admin role enforcement, and responsive spacing.
+- Improved mobile TypeScript quality by replacing loose icon lookup and inline style constants with typed maps and stylesheet entries.
+- Added Prisma indexes for `Food.englishName` and `MealTemplate.userId` to support common lookup paths.
+
+### Remaining limitations
+
+- The mobile app still uses placeholder screens for diary/stat/profile flows and does not include persistent authentication storage yet.
+- Food image recognition and barcode scanning remain placeholders by design.
+- Local file uploads use local disk storage; production should use cloud/object storage.
+- End-to-end tests, API integration tests, and visual regression tests are not yet present.
+- Dependency installation could not be completed in this environment because the npm registry returned `403 Forbidden` for scoped packages, so full build/typecheck execution is blocked until dependencies are available.
+
+### Recommended future improvements
+
+- Add automated API integration tests against a disposable PostgreSQL database.
+- Add Playwright smoke tests for login, diary entry creation, admin verification, and responsive navigation.
+- Add Expo authentication, secure token storage, and real diary/report mobile screens.
+- Add production migration scripts using `prisma migrate deploy`.
+- Add rate limiting and audit logging for admin mutating routes.
+- Move uploads to S3-compatible storage and validate uploaded MIME types.
