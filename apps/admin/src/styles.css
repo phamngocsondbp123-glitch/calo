@@ -1,0 +1,1 @@
+@tailwind base;@tailwind components;@tailwind utilities;body{margin:0;background:#f8fafc;font-family:Inter,system-ui,sans-serif}.card{@apply rounded-3xl bg-white p-5 shadow-lg shadow-slate-200/60}.input{@apply rounded-2xl border p-3}.btn{@apply rounded-2xl bg-green-600 px-4 py-3 font-bold text-white}

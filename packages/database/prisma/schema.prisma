@@ -1,0 +1,173 @@
+generator client { provider = "prisma-client-js" }
+datasource db { provider = "postgresql" url = env("DATABASE_URL") }
+
+enum Gender { male female other }
+enum GoalType { gain_weight lose_weight maintain_weight }
+enum ActivityLevel { sedentary lightly_active moderately_active very_active athlete }
+enum Role { user admin }
+enum MealType { breakfast lunch dinner snack }
+
+model User {
+  id String @id @default(cuid())
+  name String
+  email String @unique
+  passwordHash String
+  role Role @default(user)
+  gender Gender @default(other)
+  age Int
+  height Float
+  currentWeight Float
+  goalWeight Float
+  activityLevel ActivityLevel @default(lightly_active)
+  goalType GoalType @default(maintain_weight)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  foods Food[] @relation("FoodCreator")
+  diaryEntries DiaryEntry[]
+  weightEntries WeightEntry[]
+  goals Goal[]
+  mealTemplates MealTemplate[]
+  favoriteFoods FavoriteFood[]
+  adminLogs AdminLog[]
+}
+
+model FoodCategory {
+  id String @id @default(cuid())
+  name String @unique
+  vietnameseName String
+  slug String @unique
+  foods Food[]
+  createdAt DateTime @default(now())
+}
+
+model Food {
+  id String @id @default(cuid())
+  name String @unique
+  vietnameseName String
+  englishName String?
+  categoryId String
+  category FoodCategory @relation(fields: [categoryId], references: [id])
+  caloriesPer100g Float
+  proteinPer100g Float
+  carbsPer100g Float
+  fatPer100g Float
+  fiberPer100g Float @default(0)
+  sugarPer100g Float @default(0)
+  sodiumPer100g Float @default(0)
+  source String @default("seed")
+  isVerified Boolean @default(false)
+  barcode String? @unique
+  imageUrl String?
+  note String?
+  createdById String?
+  createdBy User? @relation("FoodCreator", fields: [createdById], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  diaryEntries DiaryEntry[]
+  mealTemplateItems MealTemplateItem[]
+  favoriteFoods FavoriteFood[]
+
+  @@index([vietnameseName])
+  @@index([categoryId])
+}
+
+model DiaryEntry {
+  id String @id @default(cuid())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  foodId String
+  food Food @relation(fields: [foodId], references: [id])
+  mealType MealType
+  date DateTime
+  quantityGram Float
+  calories Float
+  protein Float
+  carbs Float
+  fat Float
+  note String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([userId, date])
+}
+
+model WeightEntry {
+  id String @id @default(cuid())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date DateTime
+  weight Float
+  note String?
+  createdAt DateTime @default(now())
+  @@unique([userId, date])
+}
+
+model Goal {
+  id String @id @default(cuid())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  goalType GoalType
+  startWeight Float
+  targetWeight Float
+  dailyCalories Int
+  proteinTarget Float
+  carbsTarget Float
+  fatTarget Float
+  startDate DateTime @default(now())
+  endDate DateTime?
+  isActive Boolean @default(true)
+  createdAt DateTime @default(now())
+}
+
+model MealTemplate {
+  id String @id @default(cuid())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name String
+  description String?
+  items MealTemplateItem[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MealTemplateItem {
+  id String @id @default(cuid())
+  templateId String
+  template MealTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  foodId String
+  food Food @relation(fields: [foodId], references: [id])
+  quantityGram Float
+}
+
+model FavoriteFood {
+  id String @id @default(cuid())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  foodId String
+  food Food @relation(fields: [foodId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  @@unique([userId, foodId])
+}
+
+model BarcodeProduct {
+  id String @id @default(cuid())
+  barcode String @unique
+  productName String
+  brand String?
+  caloriesPer100g Float
+  proteinPer100g Float
+  carbsPer100g Float
+  fatPer100g Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AdminLog {
+  id String @id @default(cuid())
+  adminId String
+  admin User @relation(fields: [adminId], references: [id])
+  action String
+  entityType String
+  entityId String?
+  metadata Json?
+  createdAt DateTime @default(now())
+}
