@@ -4,7 +4,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { AddFoodScreen } from './src/screens/AddFoodScreen';
-import { SimpleScreen } from './src/screens/SimpleScreen';
+import { DiaryScreen } from './src/screens/DiaryScreen';
+import { StatsScreen } from './src/screens/StatsScreen';
+import { ProfileScreen } from './src/screens/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
 const iconMap = { Home: 'home', Add: 'add-circle', Diary: 'restaurant', Stats: 'bar-chart', Profile: 'person' } as const;
@@ -23,9 +25,9 @@ export default function App() {
       })}>
         <Tab.Screen name="Home" component={HomeScreen} />
         <Tab.Screen name="Add" component={AddFoodScreen} />
-        <Tab.Screen name="Diary">{() => <SimpleScreen title="Meal Diary" description="Breakfast, lunch, dinner, snacks, copy yesterday, and meal templates are backed by the shared API." />}</Tab.Screen>
-        <Tab.Screen name="Stats">{() => <SimpleScreen title="Statistics" description="Daily, weekly, monthly reports with calories, macros, weight progress, and top foods." />}</Tab.Screen>
-        <Tab.Screen name="Profile">{() => <SimpleScreen title="Profile" description="Onboarding, authentication, BMI/TDEE, goals, settings, and logout architecture." />}</Tab.Screen>
+        <Tab.Screen name="Diary" component={DiaryScreen} />
+        <Tab.Screen name="Stats" component={StatsScreen} />
+        <Tab.Screen name="Profile" component={ProfileScreen} />
       </Tab.Navigator>
     </NavigationContainer>
   );

@@ -111,3 +111,5 @@ export const weightEntrySchema = z.object({
   weight: z.coerce.number().min(30).max(250),
   note: optionalText
 });
+
+export * from './demo.js';
